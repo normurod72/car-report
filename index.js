@@ -5,41 +5,17 @@ var io = require('socket.io')(srv);
 var pg = require('pg');
 var path = require('path');
 var _=require("lodash");
-var fs = require('fs');
-
-var pdf = require('html-pdf');
-
-var html = fs.readFileSync('./workfolder/my_pdf.html', 'utf8');
-var options = { 
-	format: 'Letter', 
-	"base": "./workfolder",
-	"border": {
-	    "top": "1.2cm",            // default is 0, units: mm, cm, in, px
-	    "right": "1.2cm",
-	    "bottom": "1.2cm",
-	    "left": "2cm"
-	  }
-};
- 
-pdf.create(html, options).toFile('./my_pdf.pdf', function(err, res) {
-  if (err) return console.log(err);
-  console.log(res); // { filename: '/app/businesscard.pdf' }
-});
-
- var HtmlDocx = require('html-docx-js');
-
-    var docx = HtmlDocx.asBlob(html);
-    fs.writeFile('my_docx.docx',docx, function (err){
-       if (err) return console.log(err);
-       console.log('done');
-    });
 
 
 /* local modules init */
 const headers = require('./headers')(app,path);
-var local=require('./local_handler.js');
-var _utils=require('./utils.js');
-var db=require('./db.js');
+const local=require('./local_handler.js');
+const _utils=require('./utils.js');
+const db=require('./db.js');
+const _save=require('./save_to_file.js');
+
+_save.save_as_pdf({filename:'my_pdf.pdf',src:'./workfolder/my.html'});
+_save.save_as_docx({filename:'my_docx.docx',src:'./workfolder/my.html'});
 
 /*connection*/
 db.connectAllClients();
