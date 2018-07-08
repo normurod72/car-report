@@ -1,0 +1,25 @@
+{
+  "name": "stat.gds.fs",
+  "version": "1.0.0",
+  "description": "Statistics of regional car entries",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Normurod",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "html-docx-js": "^0.3.1",
+    "html-pdf": "^2.2.0",
+    "lodash": "^4.17.10",
+    "node-static": "^0.7.10",
+    "pg": "^7.4.3",
+    "pg-query": "^0.11.0",
+    "phantom": "^6.0.3",
+    "phantomjs-prebuilt": "^2.1.16",
+    "socket.io": "^2.1.1"
+  }
+}

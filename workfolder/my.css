@@ -1,0 +1,9 @@
+table{
+	font-size: 15px;
+	padding: 20px;
+	border: 1px solid black !important;
+}
+th,td{
+	border: 1px solid black !important;
+	
+}
