@@ -5,7 +5,10 @@ var io = require('socket.io')(srv);
 var pg = require('pg');
 var path = require('path');
 var _=require("lodash");
-
+var Log = require('log')
+, fs = require('fs')
+, stream = fs.createWriteStream(__dirname + '/file.log', { flags: 'a' })
+, log = new Log('debug', stream);
 
 /* local modules init */
 const headers = require('./headers')(app,path);
@@ -14,18 +17,17 @@ const _utils=require('./utils.js');
 const db=require('./db.js');
 const _save=require('./save_to_file.js');
 
-_save.save_as_pdf({filename:'my_pdf.pdf',src:'./workfolder/my.html'});
-_save.save_as_docx({filename:'my_docx.docx',src:'./workfolder/my.html'});
+//_save.save_as_pdf({filename:'my_pdf.pdf',src:'./workfolder/my.html'});
+//_save.save_as_docx({filename:'my_docx.docx',src:'./workfolder/my.html'});
 
 /*connection*/
-db.connectAllClients();
+db.connectAllClients(log);
 
 io.on('connection', function (socket) {
   	
 	console.log("conn estb");
 	socket.emit('msg', { data: "We are connected!" });
   	
-
 	socket.on('search', function(data) {
 		console.log(data);
 		_.forEach(data.posts,function(v,k){
@@ -35,18 +37,10 @@ io.on('connection', function (socket) {
 				ips+=v[i];
 			}
 			if(data.car_number!=""){
-				local._search(local._prepare_search_query_specified_car(data,ips,{limit:25,offset:0}),k,socket,db,data.report_type,true);
+				local._search(local._prepare_search_query_specified_car(data,ips,{limit:data.limit,offset:data.offset}),k,socket,db,data.report_type,true);
 			}else{
-				local._search(local._prepare_search_query(data,ips,{limit:25,offset:0}),k,socket,db,data.report_type,false);
-
-
-        		/*local._search(`SELECT json_build_array(array_agg((i.car_number, i.date, i.time,i.direction))), i.name, i.ip FROM
-				  (SELECT p.name, e.ip, to_char(e.the_date,'DD-MM-YYYY') as date, to_char(e.the_date, 'HH24:MI:SS') as time, e.direction, e.car_number
-				          FROM events e JOIN posts p ON e.ip = p.ip WHERE the_date
-				                BETWEEN to_timestamp('01-01-2017 00:00:00','DD-MM-YYYY HH24:MI:SS') AND to_timestamp('10-10-2018 23:00:00','DD-MM-YYYY HH24:MI:SS')
-				                        AND e.ip=ANY('{192.168.2.14, 192.168.2.17,101.40.1.67}'::inet[])
-				                              GROUP BY e.ip, e.direction, e.car_number, e.the_date, p.name ORDER BY e.the_date LIMIT 100) i
-				        GROUP BY i.ip, i.name;`,k,socket,db);*/
+				log.debug(local._prepare_search_query(data,ips,{limit:data.limit,offset:data.offset}));
+				local._search(local._prepare_search_query(data,ips,{limit:data.limit,offset:data.offset}),k,socket,db,data.report_type,false);
 			}
 		});
 	

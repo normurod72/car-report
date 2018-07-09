@@ -1,10 +1,10 @@
 var pg = require('pg');
-var server_dbconf=require('./conf.js');
+var server_dbconf = require('./conf.js');
 
 var _db=module.exports={
 	clients:{},
 	server : new pg.Client("postgres://"+server_dbconf.dbuser+":"+server_dbconf.dbpass+"@"+server_dbconf.dbhost+":5432/"+server_dbconf.dbname+"?connectTimeout=0"),
-	connectAllClients: async function (){ 
+	connectAllClients: async function (log){ 
 		await this.server.connect();
 	   	var res = await this.server.query("SELECT * FROM regions;");
 		for(var i=0;i<res.rows.length;i++){
@@ -15,10 +15,10 @@ var _db=module.exports={
 
 		for(var j in this.clients){
 			try{
-				console.log("Client: "+j+" connected!");
+				log.info("Client: "+j+" connected! $ db.js line 18 $");
 				await this.clients[j].connect();
 			}catch(error){
-				console.log("Connection error on client: "+j);
+				log.error("Connection error on client: "+j+" $ db.js line 21 $");
 			}
 		}
 	},
@@ -28,10 +28,10 @@ var _db=module.exports={
 	disconnectAllClient:async function(){
 		for(var j in this.clients){
 			try{
-				console.log("Client: "+j+" disconnected!");
+				log.info("Client: "+j+" disconnected! $ db.js line 31 $");
 				await this.clients[j].end();
 			}catch(error){
-				console.log("Connection error on client: "+j);
+				log.error("Disconnection error on client: "+j+" $ db.js line 34 $");
 			}
 		}
 	}
