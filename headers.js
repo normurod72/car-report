@@ -1,4 +1,5 @@
 const express=require('express');
+const bodyParser = require("body-parser");
 
 module.exports=(app,path)=>{
 	app.use(function (req, res, next) {
@@ -10,6 +11,12 @@ module.exports=(app,path)=>{
 	});
 
 	app.use(express.static('workfolder'));
+	app.use(express.static('temp'));
+	app.use(bodyParser.urlencoded({
+	    extended: true
+	}));
+	app.use(bodyParser.json());
+
 	app.get('/*', function(req, res){
 	   res.sendFile(path.join(__dirname + '/403.html'));
 	});

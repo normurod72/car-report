@@ -12,15 +12,22 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
+    "handlebars": "^4.0.11",
     "html-docx-js": "^0.3.1",
     "html-pdf": "^2.2.0",
+    "html-to-pdf": "^0.1.11",
+    "is-reachable": "^2.4.0",
     "lodash": "^4.17.10",
     "log": "^1.4.0",
     "node-static": "^0.7.10",
     "pg": "^7.4.3",
     "pg-query": "^0.11.0",
     "phantom": "^6.0.3",
+    "phantom-html-to-pdf": "^0.5.6",
     "phantomjs-prebuilt": "^2.1.16",
-    "socket.io": "^2.1.1"
+    "ping": "^0.2.2",
+    "socket.io": "^2.1.1",
+    "tcp-ping": "^0.1.1",
+    "wkhtmltopdf": "^0.3.4"
   }
 }
