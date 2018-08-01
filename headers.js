@@ -11,6 +11,7 @@ module.exports=(app,path)=>{
 	});
 
 	app.use(express.static('workfolder'));
+	app.use(express.static('workfolder/fonts'));
 	app.use(express.static('temp'));
 	app.use(bodyParser.urlencoded({
 	    extended: true

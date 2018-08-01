@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'AcrosstheRoad';
-  src:  url('../OpenSans-Regular.ttf') format('truetype'), 
-  		url('../fonts/OpenSans-SemiBold.ttf') format('truetype'),
-		url('../fonts/OpenSans-Italic.ttf') format('truetype'),
-		url('../fonts/OpenSans-Bold.ttf') format('truetype'),
-		url('../fonts/OpenSans-BoldItalic.ttf') format('truetype');
+  src:  url('fonts/OpenSans-Regular.ttf') format('truetype'), 
+  		url('fonts/fonts/OpenSans-SemiBold.ttf') format('truetype'),
+		url('fonts/fonts/OpenSans-Italic.ttf') format('truetype'),
+		url('fonts/fonts/OpenSans-Bold.ttf') format('truetype'),
+		url('fonts/fonts/OpenSans-BoldItalic.ttf') format('truetype');
 	}
 /*!
  * bootswatch v3.3.7

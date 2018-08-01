@@ -13,6 +13,7 @@ const html_head=`
   <html>
     <head>
       <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+      <meta charset="utf-8" />
       <title>Otchet</title>
       <link rel="stylesheet" type="text/css" href="http://localhost:3333/bootstrap.min.css">
       <link rel="stylesheet" type="text/css" href="http://localhost:3333/my.css">
@@ -62,7 +63,7 @@ var local=module.exports={
         }
         console.log(Object.keys(extra).length);
         if(Object.keys(extra).length==qnumber){
-          fs.appendFile(temp_file, "</body></html>", function(err) {
+          fs.appendFile(temp_file, "</body></html>", "utf8", function(err) {
               if(err) {
                   return console.log(err);
               }
@@ -74,6 +75,7 @@ var local=module.exports={
           qnumber=0;
         }
       }else{
+        console.log(res.rows);
         socket.emit('search_data_'+$kod, { "data": res.rows, "kod":$kod, "type":$type, "car":$car }); 
       }
     },
@@ -82,14 +84,14 @@ var local=module.exports={
       console.log(data);
      
         if(mode=='a'){
-          fs.appendFile(path, this._prepare_html_data(data,title,report_title), function(err) {
+          fs.appendFile(path, this._prepare_html_data(data,title,report_title), "utf8", function(err) {
               if(err) {
                   return console.log(err);
               }
               console.log("Data appended!");
           });
         }else{
-          fs.writeFile(path, this._prepare_html_data(data,title,report_title), function(err) {
+          fs.writeFile(path, this._prepare_html_data(data,title,report_title), "utf8", function(err) {
               if(err) {
                   return console.log(err);
               }
@@ -98,35 +100,30 @@ var local=module.exports={
         }
     },
 
-    _update_region_sts:async function(id,sts){
-      var res = await db.server.query(`UPDATE regions SET status=${sts} WHERE id=${id};`);
+    _update_region_sts:async function(ip,sts){
+      await db.server.query(`UPDATE regions SET status=${sts} WHERE ip='${ip}';`);
+    },
+
+    _get_posts_sts:async function(kod,socket){
+      var res = await db.clients["kod_"+kod].query(`
+        SELECT hostname, ip, DATE_PART('day', current_timestamp::timestamp - last_update::timestamp) * 24 * 60 + 
+           DATE_PART('hour', current_timestamp::timestamp - last_update::timestamp) * 60 + 
+           DATE_PART('minute', current_timestamp::timestamp - last_update::timestamp) as minute_diff FROM clients;`);
+      socket.emit('posts_sts',{d:res.rows,kod:kod})
     },
 
     _send_regions_sts:async function(socket){
-      var res = await db.server.query(`SELECT kod, status FROM regions;`);
-      socket.emit("sidebar_live",{"data":res.rows});
+      var res = await db.server.query(`SELECT kod, ip, status FROM regions;`);
+      socket.emit("sidebar_up",{"data":res.rows});
     },
 
-    _check_connections:function(hosts,mode='n',socket){
-      _.forEach(hosts,function(v,k){
-        ping.sys.probe(v.ip, function(isAlive){
-          if(isAlive && !v.status){
-            local._update_region_sts(v.id,true);
-          }else{
-            if(!v.status){
-              local._update_region_sts(v.id,false);
-            }
-          }
-        },{ timeout: 3 });
-      });
-      
-      local._send_regions_sts(socket);
-    
-      if(mode=='r'){
-        setTimeout(function(){
-          local._check_connections(hosts,'r',socket);
-        },30000);
-      }
+    _check_connections:function(ip,socket){
+      ping.sys.probe(ip, function(isAlive){
+          var myJson={};
+          myJson[ip]=isAlive;
+          socket.emit('sidebar_live',myJson);
+          local._update_region_sts(ip,isAlive);
+      },{ timeout: 3 });
       return;
     },
 
@@ -164,8 +161,13 @@ var local=module.exports={
 
     _get_car_counts:async function($q,socket,$kod){
       var res = await db.clients["kod_"+$kod].query($q);
-      log.debug($q);
-      socket.emit('tosh_vil', { "data": res.rows, "kod":$kod });
+      //log.debug($q);
+      required_length--;
+      if(required_length==0){
+        socket.emit('tosh_vil', { "data": res.rows, "kod":$kod, "fin":1 });
+      }else{
+        socket.emit('tosh_vil', { "data": res.rows, "kod":$kod, "fin":0 });
+      }
     },
 
     _prepare_search_query:function(options,ips,pagination){

@@ -11,19 +11,13 @@ var Log = require('log')
 , log = new Log('debug', stream);
 
 
-
-
 /********/
-/*var ping = require('ping');
+//var ping = require('ping');
  
-var hosts = ['101.4.0.13', '101.4.0.3', '8.8.8.8'];
+/*var hosts = ['101.4.0.13', '101.4.0.3', '8.8.8.8'];
 hosts.forEach(function(host){
     ping.sys.probe(host, function(isAlive){
-    	if(){
-
-    	}else{
-
-    	}
+    	
         var msg = isAlive ? 'host ' + host + ' is alive' : 'host ' + host + ' is dead';
         console.log(msg);
     },{ timeout: 3 });
@@ -49,15 +43,22 @@ global.qnumber=0;
 db.connectAllClients(log);
 
 io.on('connection', function (socket) {
-	
-	(async function(){
-	   	var res = await db.server.query("SELECT * FROM regions;");
-		local._check_connections(res.rows,'r',socket);
-	})();
   	
 	console.log("conn estb");
 	socket.emit('msg', { data: "We are connected!" });
-  	
+
+	socket.on('check_conn', function(data) {
+		local._check_connections(data.ip,socket);
+	});
+
+	socket.on('live',(data)=>{
+		local._send_regions_sts(socket);
+	});
+
+	socket.on('get_posts_sts',(data)=>{
+		local._get_posts_sts(data.kod,socket);
+	});
+
 	socket.on('search', function(data) {
 		console.log(data);
 		_.forEach(data.posts,function(v,k){
@@ -78,8 +79,10 @@ io.on('connection', function (socket) {
 	
 	});
 
-	socket.on('regions_data_live', function(d) { 		
+	socket.on('regions_data_live', function(d) { 	
+		global.required_length=d.kod.length;	
 		_.forEach(d.kod,function(v,k){
+			console.log(v);
  			local._get_car_counts("SELECT array_agg(count) FROM (SELECT count(*), direction FROM events WHERE date(the_date) BETWEEN to_date('"+d.date+"','DD-MM-YYYY') AND to_date('"+_utils.getTodaysDateDDMMYY()+"','DD-MM-YYYY') GROUP BY direction ORDER BY direction) t;", socket,v);
 		});
  	});
